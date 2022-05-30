@@ -1,7 +1,7 @@
 <script>
   import { onDestroy, createEventDispatcher } from 'svelte';
-  import meetups from './meetups-store';
-  import Button from '../UI/Button.svelte';
+  import meetups from '../meetups-store';
+  import Button from '../components/UI/Button.svelte';
 
   export let id;
 
