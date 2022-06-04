@@ -1,7 +1,5 @@
 <script context="module">
   export function preload(page) {
-    console.log(page);
-
     return this.fetch('https://svelte-meetup-app-213b5-default-rtdb.europe-west1.firebasedatabase.app/meetups.json')
       .then(res => {
         if (!res.ok) {
