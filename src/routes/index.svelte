@@ -1,5 +1,5 @@
 <script context="module">
-  export function preload(page) {
+  export function preload() {
     return this.fetch('https://svelte-meetup-app-213b5-default-rtdb.europe-west1.firebasedatabase.app/meetups.json')
       .then(res => {
         if (!res.ok) {
@@ -15,7 +15,7 @@
             id: key,
           });
         }
-        return { fetchedMeetups: loadedMeetups };
+        return { fetchedMeetups: loadedMeetups.reverse() };
       })
       .catch(err => {
         console.log(err);
@@ -25,7 +25,7 @@
 </script>
 
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { scale } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import meetups from '../meetups-store';
@@ -36,19 +36,29 @@
   import LoadingSpinner from '../components/UI/LoadingSpinner.svelte';
 
   export let fetchedMeetups;
+
+  let loadedMeetups = [];
   let editMode;
   let editedId;
   let isLoading;
-
-  const dispatch = createEventDispatcher();
+  let unsubscribe;
 
   let favsOnly = false;
 
   onMount(() => {
+    unsubscribe = meetups.subscribe(items => {
+      loadedMeetups = items;
+    });
     meetups.setMeetups(fetchedMeetups);
   });
 
-  $: filteredMeetups = favsOnly ? fetchedMeetups.filter(m => m.isFavorite) : fetchedMeetups;
+  onDestroy(() => {
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  });
+
+  $: filteredMeetups = favsOnly ? loadedMeetups.filter(m => m.isFavorite) : loadedMeetups;
 
   const setFilter = event => {
     favsOnly = event.detail === 1;
@@ -68,6 +78,10 @@
     editMode = 'edit';
     editedId = event.detail;
   }
+
+  function startAdd() {
+    editMode = 'edit';
+  }
 </script>
 
 <svelte:head>
@@ -82,7 +96,7 @@
 {:else}
   <section id="meetup-controls">
     <MeetupFilter on:select={setFilter} />
-    <Button on:click={() => dispatch('add')}>New Meetup</Button>
+    <Button on:click={startAdd}>New Meetup</Button>
   </section>
   {#if filteredMeetups === 0}
     <p id="no-meetups">No meetups found. You can start adding some.</p>
@@ -99,8 +113,7 @@
           address={meetup.address}
           isFav={meetup.isFavorite}
           email={meetup.email}
-          on:showdetails
-          on:edit
+          on:edit={startEdit}
         />
       </div>
     {/each}
