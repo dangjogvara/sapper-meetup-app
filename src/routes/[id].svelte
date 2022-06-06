@@ -1,9 +1,29 @@
+<script context="module">
+  export function preload(page) {
+    const meetupId = page.params.id;
+
+    return this.fetch(
+      `https://svelte-meetup-app-213b5-default-rtdb.europe-west1.firebasedatabase.app/meetups/${meetupId}.json`
+    )
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Fetching Meetup failed');
+        }
+        return res.json();
+      })
+      .then(meetupData => {
+        return { loadedMeetup: { ...meetupData, id: meetupId } };
+      })
+      .catch(err => this.error(404, 'Could not fetch meetup'));
+  }
+</script>
+
 <script>
   import { onDestroy, createEventDispatcher } from 'svelte';
   import meetups from '../meetups-store';
   import Button from '../components/UI/Button.svelte';
 
-  export let id;
+  export let loadedMeetup;
 
   let selectedMeetup;
 
