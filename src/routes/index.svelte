@@ -37,7 +37,6 @@
 
   export let fetchedMeetups;
 
-  let loadedMeetups = [];
   let editMode;
   let editedId;
   let isLoading;
@@ -46,10 +45,10 @@
   let favsOnly = false;
 
   onMount(() => {
-    unsubscribe = meetups.subscribe(items => {
-      loadedMeetups = items;
-    });
     meetups.setMeetups(fetchedMeetups);
+    unsubscribe = meetups.subscribe(items => {
+      fetchedMeetups = items;
+    });
   });
 
   onDestroy(() => {
@@ -58,7 +57,7 @@
     }
   });
 
-  $: filteredMeetups = favsOnly ? loadedMeetups.filter(m => m.isFavorite) : loadedMeetups;
+  $: filteredMeetups = favsOnly ? fetchedMeetups.filter(m => m.isFavorite) : fetchedMeetups;
 
   const setFilter = event => {
     favsOnly = event.detail === 1;
