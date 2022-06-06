@@ -66,7 +66,7 @@
         >{isFav ? 'Unfavorite' : 'Favorite'}</Button
       >
     {/if}
-    <Button type="button" on:click={() => dispatch('showdetails', id)}>Show Details</Button>
+    <Button href="/{id}">Show Details</Button>
   </footer>
 </article>
 
